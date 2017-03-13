@@ -19,14 +19,19 @@ define([
     var img1 = "ASP\n Pas de niveaux hydro aériques. pas de pneumo-péritoine. ";
     var img2 = "Échographie Abdominale \nBeaucoup d'air empêchant la visualisation. Reins tailles normales bien diférenciés. Aorte non vue. Foie normal. Rate N. Discret épanchement douglas.";
     var img3 = "IRM médullaire\n : Syndrome de la queue de cheval sur probable hernie discale";
+	
+	
     //accueil IDE : 
     myCustomPatient.resultText = "\
+	...........................................................................\n\n\
+	Entrée box : " + u.time() + " \n\
 	Note de l'infirmiere d'accueil :\n\
 	19ans, psy +++crise d’angoisse. T 37.8, PA 140/60 ,sat 96%, FC 107\n\n \
 	Antécédents : ? \n\
 	Traitements : Leelo, Xanax \n\n\
 	...........................................................................\n\n";
 	myCustomPatient.resultImg.push('img/p2_courrier.png');
+	
     //Actions du joueur,
 	myCustomPatient.onB1 = function() { 
 	this.close();
