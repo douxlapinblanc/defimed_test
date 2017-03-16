@@ -133,6 +133,10 @@ define([
 			//Desactive le bouton Result, et vire le Popup s'il y en a un.
             var selfBox = this.box;
             selfBox.addClass('cooling');
+			
+            selfBox.toggleClass('selected');
+			selfBox.toggleClass('selectable');
+			
             selfBox.find('.popupContainer').hide();
 			//selfbox.removeClass('selectable');
 			
@@ -146,7 +150,7 @@ define([
 			//A la fin du timer, réactive le bouton résult
             setTimeout(function() {
                 selfBox.removeClass('cooling');
-				//$('.btn').removeAttr('disabled');
+				selfBox.toggleClass('selectable');
             }, time * 1000);
         }
 

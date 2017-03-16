@@ -80,7 +80,7 @@ define('app', ['jquery','utils'], function($,u) {
             //Timers du jeu et non du patient. GameTime est le temps décroissant / GeneralTimer =  respawning / 
 			var startGeneralTimer = function() {
             general_timer = setInterval(function() {
-                disableUserInterface();
+                //disableUserInterface();
                 if ($('.occupied').length !== 0) {
                     game_neg_time--;
                     game_pos_time++;
@@ -115,9 +115,9 @@ define('app', ['jquery','utils'], function($,u) {
         startGeneralTimer();
 
 		
-		//Selection d'un patient
+		//EVENEMENT : SELECTION PATIENT
         $boxes.click(function(e) {
-            if ($(this).hasClass('selectable')) {
+            if ($(this).hasClass('selectable') && (!$(this).hasClass('selected')) ) {
                 $(this).toggleClass('selected');
                 $boxes.not($(this)).each(function(index, item) {
                     $(item).removeClass('selected');
@@ -127,14 +127,15 @@ define('app', ['jquery','utils'], function($,u) {
                     }
                 });
 				
-				//si pas de cooldown en cours, on peut activer l'userinterface.
+				/*si pas de cooldown en cours, on peut activer l'userinterface.
 				if (!($('.selected').hasClass('cooling'))){
 					$('.btn').removeAttr('disabled');
-				}
+				}*/
             }
             $(this).find('.popupContainer').hide();
         });
 
+		//EVENEMENT : CLICK AUTRE PART
         $('body').click(function(e) {
             $('#contextMenu').hide();
             $boxes.each(function(index, item) {
@@ -143,6 +144,7 @@ define('app', ['jquery','utils'], function($,u) {
                     boxPatients[id].inContextMenu = false;
                 }
             });
+			//Si click ailleurs que result
             if (!$(e.target).is('#result') && !$(e.target).is('.arrow')) {
                 $('#resultContainer').hide();
                 if ($('.selected').length !== 0) {
@@ -154,7 +156,11 @@ define('app', ['jquery','utils'], function($,u) {
                 }
 
             }
-            disableUserInterface();
+			//desactive "B buttons"
+            if ($('.selected').length === 0) {
+                $('.btn').attr('disabled', 'disabled');
+            }
+			
         });
 
         $('body').contextmenu(function(e) {
@@ -259,7 +265,7 @@ define('app', ['jquery','utils'], function($,u) {
             }
         };
 
-        var disableUserInterface = function() {
+    /*    var disableUserInterface = function() {
             if ($('.selected').length === 0) {
                 $('.btn').attr('disabled', 'disabled');
             }
@@ -268,7 +274,7 @@ define('app', ['jquery','utils'], function($,u) {
             if ($('.selected').length === 0) {
                 $('.btn').attr('enabled', 'en');
             }
-        }
+        }*/
 
 		//Affiche l'onglet Resultats
         var drawResultWindow = function(text, imagesArr) {
@@ -317,6 +323,7 @@ define('app', ['jquery','utils'], function($,u) {
             }
         }
 
+		//Creation des boxes et des attributs
         function drawBoxes(boxNumber) {
             if (boxNumber === 1) {
                 $('#boxes').css('margin-left', '200px');
