@@ -115,10 +115,13 @@ define('app', ['jquery','utils'], function($,u) {
         startGeneralTimer();
 
 		
-		//EVENEMENT : SELECTION PATIENT
+		//EVENEMENT : Click sur un box
         $boxes.click(function(e) {
             if ($(this).hasClass('selectable') && (!$(this).hasClass('selected')) ) {
                 $(this).toggleClass('selected');
+				$('.btn').removeAttr('disabled');//active l'UI.
+				
+				//Selectionne uniquementle box cliqué...
                 $boxes.not($(this)).each(function(index, item) {
                     $(item).removeClass('selected');
                     var id = parseInt($(item).prop('id').split('-')[1]);
@@ -127,11 +130,8 @@ define('app', ['jquery','utils'], function($,u) {
                     }
                 });
 				
-				/*si pas de cooldown en cours, on peut activer l'userinterface.
-				if (!($('.selected').hasClass('cooling'))){
-					$('.btn').removeAttr('disabled');
-				}*/
             }
+			//Desactive le popup s'il y en a un en cours.
             $(this).find('.popupContainer').hide();
         });
 
@@ -144,7 +144,7 @@ define('app', ['jquery','utils'], function($,u) {
                     boxPatients[id].inContextMenu = false;
                 }
             });
-			//Si click ailleurs que result
+			//Si click en dehors de ResultContainer, ferme le.
             if (!$(e.target).is('#result') && !$(e.target).is('.arrow')) {
                 $('#resultContainer').hide();
                 if ($('.selected').length !== 0) {
@@ -156,7 +156,7 @@ define('app', ['jquery','utils'], function($,u) {
                 }
 
             }
-			//desactive "B buttons"
+			//desactive l'UI si rien n'est selectioné
             if ($('.selected').length === 0) {
                 $('.btn').attr('disabled', 'disabled');
             }
@@ -265,16 +265,6 @@ define('app', ['jquery','utils'], function($,u) {
             }
         };
 
-    /*    var disableUserInterface = function() {
-            if ($('.selected').length === 0) {
-                $('.btn').attr('disabled', 'disabled');
-            }
-        }
-        var enableUserInterface = function() {
-            if ($('.selected').length === 0) {
-                $('.btn').attr('enabled', 'en');
-            }
-        }*/
 
 		//Affiche l'onglet Resultats
         var drawResultWindow = function(text, imagesArr) {
