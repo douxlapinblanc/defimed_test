@@ -84,6 +84,7 @@
     float: left;
     background-color: brown;
     color: snow;
+
 }
 
 .bAction {
@@ -185,7 +186,7 @@
 .popupContainer {
     display: none;
     position: relative;
-    z-index: 4;
+    z-index: 2;
     width: 150px;
     max-height: 150px;
     background-color: white;
