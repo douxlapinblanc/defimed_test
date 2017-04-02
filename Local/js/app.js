@@ -1,7 +1,7 @@
 define('app', ['jquery','utils'], function($,u) {
 
     const PATIENTS_NUMBER = 5;
-	const SPAWN_TIME = 4
+	const SPAWN_TIME = 20;
 	const GAME_NEG_TIME = 200;
 	
     var randomGame = false;
@@ -77,7 +77,7 @@ define('app', ['jquery','utils'], function($,u) {
             }
         }
 			
-            //Timers du jeu et non du patient. GameTime est le temps décroissant / GeneralTimer =  respawning / 
+            //Timers du jeu et non du patient. GameTime est le temps décroissant / GeneralTimer =  respawning 
 			var startGeneralTimer = function() {
             general_timer = setInterval(function() {
                 //disableUserInterface();
@@ -252,18 +252,29 @@ define('app', ['jquery','utils'], function($,u) {
                 var menuPostion = {};
                 var menuDimension = {};
 
-                $('#a1 .aActionText').text(boxPatients[id].aActions.A1);
-                $('#a2 .aActionText').text(boxPatients[id].aActions.A2);
-                $('#a3 .aActionText').text(boxPatients[id].aActions.A3);
-
                 menuPostion.x = event.pageX;
                 menuPostion.y = event.pageY;
 
                 $contextMenu.style.left = menuPostion.x + 'px';
                 $contextMenu.style.top = menuPostion.y + 'px';
-                $contextMenu.style.display = 'block';
+                $contextMenu.style.display = 'block';//affiche
             }
         };
+		
+
+
+
+    $(".navigation li.toggleSubMenu > a").click( function () {
+        if ($(this).next("ul.subMenu:visible").length != 0) {
+            $(this).next("ul.subMenu").slideUp("normal", function () { $(this).parent().removeClass("open") });
+        }
+        else {
+            $(".navigation ul.subMenu").slideUp("normal", function () { $(this).parent().removeClass("open") });
+            $(this).next("ul.subMenu").slideDown("normal", function () { $(this).parent().addClass("open") });
+        }
+        return false;
+    });
+	
 
 
 		//Affiche l'onglet Resultats

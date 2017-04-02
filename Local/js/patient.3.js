@@ -17,14 +17,16 @@ define([
     var img1 = "Radiographie du poignet de face : absence de lésions osseuse visible.";
     var img2 = "Radiographie du poignet de trois quarts : doute sur une fracture du scaphoïde. A confirmer par un TDM.";
     var img3 = "TDM : Fracture du scaphoïde.";
+	
     //accueil IDE : 
     myCustomPatient.resultText = u.time() + "Accueil IDE : 34 ans, trauma poignet\n\n \
 	Dossier : aucun ATCD, pas de traitement.\n\n";
+	
     //Actions du joueur
-
 	myCustomPatient.onB1 = function() { 
 	this.close();
 	}
+	
     myCustomPatient.patientInit = function() {
         myCustomPatient.onA1 = function() {
             switch (this.currentA1) {

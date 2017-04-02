@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Hospital Game</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' integrity='sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u' crossorigin='anonymous'>
+    <link href="css/style.css" rel="stylesheet">
+
+	
+	
+	
+	<script src="https://www.gstatic.com/firebasejs/3.7.0/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyBadnSziIAtrDIQgTlHUTg4HByuHGR9-Io",
+    authDomain: "test-e9bf8.firebaseapp.com",
+    databaseURL: "https://test-e9bf8.firebaseio.com",
+    storageBucket: "test-e9bf8.appspot.com",
+    messagingSenderId: "814947720232"
+  };
+  firebase.initializeApp(config);
+</script>
+<script>
+firebase.auth().onAuthStateChanged(function(user) {
+  if (user) {
+    // User is signed in.
+    var displayName = user.displayName;
+    var email = user.email;
+    var emailVerified = user.emailVerified;
+    var photoURL = user.photoURL;
+    var isAnonymous = user.isAnonymous;
+    var uid = user.uid;
+    var providerData = user.providerData;
+    // ...
+  } else {
+	document.location = "index.html";
+  }
+});
+</script>
+
+
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js' integrity='sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa' crossorigin='anonymous'></script>
+    <script src="js/lib/require.js" data-main="js/main"></script>
+
+</head>
+
+<body>
+    <div id="gameContainer">
+        <div id="header">
+            <div id="patientCount"><span id="patNum"></span>/<span id="totalPatNum"></span></div>
+            <div id="gameTime"></div>
+            <div id="scoreDiv">Score: <span id="score">0</span></div>
+        </div>
+        <div id="boxes"></div>
+        <button disabled class="btn" id="result">Result</button>
+        <button disabled class="btn bAction" id="b3">B3</button>
+        <button disabled class="btn bAction" id="b2">B2</button>
+        <button disabled class="btn bAction" id="b1">B1</button>
+    </div>
+
+    <div id="contextMenu">
+        <ul>
+            <li id="a1">
+                <div class="glyphicon glyphicon-new-window"></div><span class="aActionText"></span></li>
+            <li id="a2">
+                <div class="glyphicon glyphicon-new-window"></div><span class="aActionText"></span></li>
+            <li id="a3">
+                <div class="glyphicon glyphicon-new-window"></div><span class="aActionText"></span></li>
+        </ul>
+    </div>
+
+    <div id="resultContainer">
+        <textarea readonly id="textArea"></textarea>
+        <div id="slideDiv"></div>
+    </div>
+
+</body>
+
+</html>

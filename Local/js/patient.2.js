@@ -9,24 +9,22 @@ define([
 
 
     //further modifications...
-    var excli1 = "Abdomen souple et depressible, non douloureux. Les bruits hydroaériques sont perçus. Pas d'organomégalie.  Discrète matité sus pubienne, la percussion donne au patient envie d'uriner. Glycémie capilaire 1,2g/l. ";
-    var excli2 = "Pas de deficit moteur périphérique. Hypoesthésie de la face posterieure des jambes et des cuisses. ROT rotuliens présents achileens absents. Paires craniennes normales.";
-    var excli3 = "Douleur lombaire basse, avec point exquis sur deux épineuses. Le reste de l'examen est normal.";
-    var interro1 = "Je suis constipé depuis 4 jours, j'ai mangé des fibres et bu beaucoup d'eau mais ça n'y fait rien. Pouvez vous me prescrire un laxatif docteur ?";
-    var interro2 = "J'ai mal dans le bas du dos et le bas du ventren, et parfois ca me donne des fourmis dans les jambes. ";
-    var traitement1 = "Après sondage urinaire, il y à 700cc d'urines";
-    var bio1 = "NFS .....................  normale\nCRP .............................. normale\nglycémie..............................1,6g/L\nHba1c ................................ 9%\n ionogramme ..........................  normal";
-    var img1 = "ASP\n Pas de niveaux hydro aériques. pas de pneumo-péritoine. ";
-    var img2 = "Échographie Abdominale \nBeaucoup d'air empêchant la visualisation. Reins tailles normales bien diférenciés. Aorte non vue. Foie normal. Rate N. Discret épanchement douglas.";
-    var img3 = "IRM médullaire\n : Syndrome de la queue de cheval sur probable hernie discale";
+    var excli1 = "Je ne me sent pas bien ici !! Je veux rentrer !! Ils m’ont amené ici je ne sais pas pourquoi !";
+    var excli2 = "Agitation psycho-motrice. Examen difficile. Auscultation cardio-pulmonaire sans particularité.\
+	Pas de foyer de crépitant. Abdomen pléthorique mais souple. ";
+    var excli3 = "Les infirmieres viennent vous voir car la patiente les insulte. D'ailleurs elle ne veut plus vous voir";
+    var img1 = "Compte rendu Angioscanner : Embolie pulmonaire proximale bilatérale. Cavités droites augmentées de volume.";
+
 	
 	
     //accueil IDE : 
     myCustomPatient.resultText = "\
 	...........................................................................\n\n\
 	Entrée box : " + u.time() + " \n\
+	...........................................................................\n\n\
 	Note de l'infirmiere d'accueil :\n\
 	19ans, psy +++crise d’angoisse. T 37.8, PA 140/60 ,sat 96%, FC 107\n\n \
+	...........................................................................\n\n\
 	Antécédents : ? \n\
 	Traitements : Leelo, Xanax \n\n\
 	...........................................................................\n\n";
@@ -40,21 +38,28 @@ define([
         switch (this.currentA1) {
             case 0:
                 this.cooldown();
-                this.popup(interro1);
-                this.addresult(interro1);
-                this.addlog("interro1");
+                this.popup(excli1);
+                this.addresult(excli1);
+                this.addlog("excli1");
                 this.currentA1 += 1;
                 break;
             case 1:
                 this.cooldown();
-                this.popup(interro2);
+                this.popup(excli2);
                 this.currentA1 += 1;
-                this.addresult(interro2);
-                this.addlog("interro2");
+                this.addresult(excli2);
+                this.addlog("excli2");
                 break;
-            case 2: //Cul de sac, on incrémente pas.
+            case 2:
+                this.cooldown();
+                this.popup(excli3);
+                this.currentA1 += 1;
+                this.addresult(excli3);
+                this.addlog("excli3");
+                break;
+            case 3: //Cul de sac, on incrémente pas.
                 this.popup("Rien de plus...");
-                this.addlog("Interrogatoire suppplémentaire non disponnible")
+                this.addlog("Interrogatoire suplémentaire non disponible")
                 break;
             default:
                 console.log('erreur : default value reached dans ONA3');
@@ -64,33 +69,24 @@ define([
     myCustomPatient.onA2 = function() {
         switch (this.currentA2) {
             case 0:
-                this.cooldown();
-                this.popup(excli1);
-                this.addresult(excli1);
-                this.addlog("excli1");
+                this.cooldown(2);
+				this.resultImg.push('img/ep_bio1.png');
+                this.popup("Nouveau résultat disponible");
+                this.addlog("bio1");
                 this.currentA2 += 1;
-                this.aActions.A3 = "test";
                 break;
             case 1:
-                this.cooldown();
-                this.popup(excli2);
+                this.cooldown(2);
+				this.resultImg.push('img/ep_bio2.png');
+                this.popup("Nouveau résultat disponible");
+                this.addlog("bio2");
                 this.currentA2 += 1;
-                this.addresult(excli2);
-                this.addlog("excli2");
-                //Action clée : débloque l'accès à un nouvel examen
-                this.currentA3 = 3; //sauter directement à l'IRM
-                this.aActions.a3 = " IRM médullaire"; //Propose l'IRM dans le menu.
+				this.currentA3 = 1;//On saute directement a l'angioTDM pour les imageries sur A3.*
+				this.aActions.a3 = "AngioTDM(3)"; //Propose l'angioTDM dans le menu.
                 break;
-            case 2:
-                this.cooldown();
-                this.popup(excli3);
-                this.currentA2 += 1;
-                this.addresult(excli3);
-                this.addlog("excli3");
-                break;
-            case 3: //Cul de sac, on incrémente pas.
+            case 2: //Cul de sac, on incrémente pas.
                 this.popup("Rien de plus...");
-                this.addlog("examen clinique suppplémentaire non disponnible");
+                this.addlog("Biologie suplémentaire non disponible");
                 break;
             default:
                 console.log('erreur : default value reached dans ONA2');
@@ -100,36 +96,24 @@ define([
     myCustomPatient.onA3 = function() {
         switch (this.currentA3) {
             case 0:
-                this.cooldown(6);
+                this.cooldown(2);
+				this.resultImg.push('img/ep_rxt.png');
                 this.popup("Nouveau résultat disponible");
-                this.addresult(img1);
-                this.addlog("img1");
-                this.currentA3 += 1;
+                this.addlog("RxT");
+                this.currentA3 = 2;//bloque l'acces a TDM si on a pas le Gaz
+				this.aActions.a3 = "Imagerie"; //Default
                 break;
             case 1:
-                this.cooldown(6);
+                this.cooldown(3);
+				this.resultImg.push('img/ep_angiotdm.png');
                 this.popup("Nouveau résultat disponible");
                 this.currentA3 += 1;
-                this.addresult(img2);
-                this.addlog("img2");
+                this.addresult(img1);
+                this.addlog("angioTDM");
                 break;
             case 2: //Cul de sac, on incrémente pas.
                 this.popup("Rien de plus...");
-                this.addlog("imagerie suppplémentaire non disponible");
-                break;
-            case 3:
-                this.cooldown(6);
-                this.popup("Nouveau résultat disponible");
-                this.resultImg.push('img/IRM.jpg');
-                this.addresult(img3);
-                this.addlog("img3");
-                this.currentA3 += 1;
-                this.bonneReponse = true; //Critere de jugement principal de ce cas.
-                this.aActions.a3 = { "A3": "" };
-                break;
-            case 4: //Cul de sac, on incrémente pas.
-                this.popup("Rien de plus...");
-                this.addlog("imagerie suppplémentaire non disponnible");
+                this.addlog("imagerie suplémentaire non disponible");
                 break;
             default:
                 console.log('erreur : default value reached dans ONA3');

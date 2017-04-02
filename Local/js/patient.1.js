@@ -16,11 +16,21 @@ define([
     var interro2 = "J'ai mal dans le bas du dos et le bas du ventren, et parfois ca me donne des fourmis dans les jambes. ";
     var traitement1 = "Après sondage urinaire, il y à 700cc d'urines";
     var bio1 = "NFS .....................  normale\nCRP .............................. normale\nglycémie..............................1,6g/L\nHba1c ................................ 9%\n ionogramme ..........................  normal";
-    var img1 = "ASP\n Pas de niveaux hydro aériques. pas de pneumo-péritoine. ";
-    var img2 = "Échographie Abdominale \nBeaucoup d'air empêchant la visualisation. Reins tailles normales bien diférenciés. Aorte non vue. Foie normal. Rate N. Discret épanchement douglas.";
+    var img1 = "ASP\n Pas de niveaux hydro aériques. pas de pneumo-péritoine. ";// Non donné
+    var img2 = "Compte rendu d'échographie Abdominale \nBeaucoup d'air empêchant la visualisation. Reins tailles normales bien diférenciés. \
+	Aorte de diametre normale. Foie et rate normaux. Epanchement péritonéale de faible quantité dans le cul de sac de Douglas";
     var img3 = "IRM médullaire\n : Syndrome de la queue de cheval sur probable hernie discale";
     //accueil IDE : 
-    myCustomPatient.resultText = u.time() + " Accueil IDE :\n" + "Homme 55ans diabete constipation depuis 4j\n" + " PA 12/8, FC 80, T=37,5, sat 99%\n\r";
+    myCustomPatient.resultText = "\
+	...........................................................................\n\n\
+	Entrée box : " + u.time() + " \n\
+	...........................................................................\n\n\
+	Note de l'infirmiere d'accueil :\n\
+	Homme 55ans diabete constipation depuis 4j\n PA 12/8, FC 80, T=37,5\n\n \
+	...........................................................................\n\n\
+	Antécédents : DNID depuis 10 ans\
+	Traitements : Metformine, Kardegic 75 \n\n\
+	...........................................................................\n\n";
     //Actions du joueur
 
 	myCustomPatient.onB1 = function() { 
@@ -90,18 +100,20 @@ define([
         myCustomPatient.onA3 = function() {
             switch (this.currentA3) {
                 case 0:
-                    this.cooldown(6);
+                    this.cooldown(3);
+					this.resultImg.push('img/p1_asp.png');
                     this.popup("Nouveau résultat disponible");
-                    this.addresult(img1);
-                    this.addlog("img1");
+                    //this.addresult(img1);
+                    this.addlog("asp");
                     this.currentA3 += 1;
+					this.aActions.A3 = "écho abdo";
                     break;
                 case 1:
-                    this.cooldown(6);
+                    this.cooldown(3);
                     this.popup("Nouveau résultat disponible");
                     this.currentA3 += 1;
                     this.addresult(img2);
-                    this.addlog("img2");
+                    this.addlog("echographie abdominale");
                     break;
                 case 2: //Cul de sac, on incrémente pas.
                     this.popup("Rien de plus...");
