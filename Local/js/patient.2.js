@@ -18,16 +18,13 @@ define([
 	
 	
     //accueil IDE : 
-    myCustomPatient.resultText = "\
-	...........................................................................\n\n\
+    myCustomPatient.observText = "\
 	Entrée box : " + u.time() + " \n\
-	...........................................................................\n\n\
-	Note de l'infirmiere d'accueil :\n\
+	IAO :\n\
 	19ans, psy +++crise d’angoisse. T 37.8, PA 140/60 ,sat 96%, FC 107\n\n \
-	...........................................................................\n\n\
 	Antécédents : ? \n\
-	Traitements : Leelo, Xanax \n\n\
-	...........................................................................\n\n";
+	Traitements : Leelo, Xanax \n\n";
+
 	myCustomPatient.resultImg.push('img/p2_courrier.png');
 	
     //Actions du joueur,

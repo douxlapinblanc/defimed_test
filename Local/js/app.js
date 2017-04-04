@@ -1,12 +1,12 @@
-define('app', ['jquery','utils'], function($,u) {
+define('app', ['jquery','jqueryui','utils'], function($,u) {
 
     const PATIENTS_NUMBER = 5;
-	const SPAWN_TIME = 20;
+	const SPAWN_TIME =1 ;
 	const GAME_NEG_TIME = 200;
 	
     var randomGame = false;
     var patientCount = 0;
-    var boxNumber = 4;
+    var boxNumber = 2;
     var general_timer;
 		var spawn_time = SPAWN_TIME
 		var game_neg_time = GAME_NEG_TIME ;
@@ -28,7 +28,6 @@ define('app', ['jquery','utils'], function($,u) {
         }	
 		
     function leaveBox() {
-
         remainingPatients--;
 	    console.log("remaing patient = " + remainingPatients);
         if (remainingPatients == 0) {
@@ -45,11 +44,13 @@ define('app', ['jquery','utils'], function($,u) {
 
     function _registerEventHandlers() {
 		
+		var boxPatients = [];//ce tableau (a 4 case?) va recevoir les instances de la classe Patient.
+		
 		remainingPatients = waitingLine.length;
 		//Affiche le nombre de patient
         $('#totalPatNum').text(waitingLine.length);
 		
-		//Randomise les patients si activé
+		//Randomise les patients dans la waiting line.
         if (randomGame) {
             var count = waitingLine.length - PATIENTS_NUMBER;
             for (var i = 0; i < count; i++) {
@@ -58,26 +59,40 @@ define('app', ['jquery','utils'], function($,u) {
             }
         }
 		
-        var boxPatients = [];
+        
+		
+		//Fonction : Respawn
         var bringNextPatient = function($box) {
             var id = parseInt($box.prop('id').split('-')[1]);
-            boxPatients[id] = waitingLine[patientCount];
+            boxPatients[id] = waitingLine[patientCount];//le box devient l'instance de la classe patient
             if (boxPatients[id]) {
                 boxPatients[id].patientProgress = '#patientTimerProgress-' + id;
                 boxPatients[id].patientCooldown = '#cooldownTimerProgress-' + id;
                 $box.addClass('occupied');
                 $box.addClass('selectable');
-                boxPatients[id].box = $box;
+                boxPatients[id].box = $box;//Transmet a la classe Patient le box dans lequel il vient d'entrer.
                 patientCount++;
-                $('#patNum').text(patientCount);
+                //$('#patNum').text(patientCount);*
+				
+				//Image de fon
+				//Image de fond
                 if (boxPatients[id].patientImage) {
                     $box.css('background-image', 'url(' + boxPatients[id].patientImage + ')');
                 }
                 boxPatients[id].initialise();
+
+				//Rend le patient draggable
+				$box.draggable({
+				cancel: false,
+				revert: true,
+				scroll : false
+				});
             }
         }
+		
+		
 			
-            //Timers du jeu et non du patient. GameTime est le temps décroissant / GeneralTimer =  respawning 
+            //Fonction : les timers
 			var startGeneralTimer = function() {
             general_timer = setInterval(function() {
                 //disableUserInterface();
@@ -108,184 +123,28 @@ define('app', ['jquery','utils'], function($,u) {
             }, 1000);
         };
 
-		//Initialise le jeu : les box + les timers
-
-        drawBoxes(boxNumber);
-        $boxes = $('.box');
-        startGeneralTimer();
-
-		
-		//EVENEMENT : Click sur un box
-        $boxes.click(function(e) {
-            if ($(this).hasClass('selectable') && (!$(this).hasClass('selected')) ) {
-                $(this).toggleClass('selected');
-				$('.btn').removeAttr('disabled');//active l'UI.
-				
-				//Selectionne uniquementle box cliqué...
-                $boxes.not($(this)).each(function(index, item) {
-                    $(item).removeClass('selected');
-                    var id = parseInt($(item).prop('id').split('-')[1]);
-                    if (boxPatients[id]) {
-                        boxPatients[id].inResult = false;
-                    }
-                });
-				
-            }
-			//Desactive le popup s'il y en a un en cours.
-            $(this).find('.popupContainer').hide();
-        });
-
-		//EVENEMENT : CLICK AUTRE PART
-        $('body').click(function(e) {
-            $('#contextMenu').hide();
-            $boxes.each(function(index, item) {
-                var id = parseInt($(item).prop('id').split('-')[1]);
-                if (boxPatients[id]) {
-                    boxPatients[id].inContextMenu = false;
-                }
-            });
-			//Si click en dehors de ResultContainer, ferme le.
-            if (!$(e.target).is('#result') && !$(e.target).is('.arrow')) {
-                $('#resultContainer').hide();
-                if ($('.selected').length !== 0) {
-                    var id = parseInt($('.selected').prop('id').split('-')[1]);
-                    if (boxPatients[id]) {
-                        boxPatients[id].inResult = false;
-                    }
-                    $('.bAction').removeAttr('disabled');
-                }
-
-            }
-			//desactive l'UI si rien n'est selectioné
-            if ($('.selected').length === 0) {
-                $('.btn').attr('disabled', 'disabled');
-            }
-			
-        });
-
-        $('body').contextmenu(function(e) {
-            e.preventDefault();
-        });
-
-        $(document).on('contextmenu', '.selectable', function(e) {
-            $(this).addClass('selected');
-            var id = parseInt($('.selected').prop('id').split('-')[1]);
-            if (boxPatients[id]) {
-                boxPatients[id].hidePopup();
-                boxPatients[id].inContextMenu = true;
-            }
-            $boxes.not($(this)).each(function(index, item) {
-                $(item).removeClass('selected');
-            });
-            $('.btn').removeAttr('disabled');
-            drawContextManu(e, $(this));
-            e.preventDefault();
-        });
-
-        $(document).on('contextmenu', '.selected', function(e) {
-            drawContextManu(e, $(this));
-            e.preventDefault();
-        });
-
-        $('#b1').click(function() {
-            var id = parseInt($('.selected').prop('id').split('-')[1]);
-            if ((boxPatients[id] !== undefined) && (typeof boxPatients[id].onB1 === 'function')) {
-                boxPatients[id].onB1();
-            }
-        });
-
-        $('#b2').click(function() {
-            var id = parseInt($('.selected').prop('id').split('-')[1]);
-            if ((boxPatients[id] !== undefined) && (typeof boxPatients[id].onB2 === 'function')) {
-                boxPatients[id].onB2();
-            }
-        });
-
-        $('#b3').click(function() {
-            var id = parseInt($('.selected').prop('id').split('-')[1]);
-            if ((boxPatients[id] !== undefined) && (typeof boxPatients[id].onB3 === 'function')) {
-                boxPatients[id].onB3();
-            }
-        });
-
-        $('#a1').click(function() {
-            var id = parseInt($('.selected').prop('id').split('-')[1]);
-            if ((boxPatients[id] !== undefined) && (typeof boxPatients[id].onA1 === 'function')) {
-                boxPatients[id].onA1();
-            }
-        });
-
-        $('#a2').click(function() {
-            var id = parseInt($('.selected').prop('id').split('-')[1]);
-            if ((boxPatients[id] !== undefined) && (typeof boxPatients[id].onA2 === 'function')) {
-                boxPatients[id].onA2();
-            }
-        });
-
-        $('#a3').click(function() {
-            var id = parseInt($('.selected').prop('id').split('-')[1]);
-            if ((boxPatients[id] !== undefined) && (typeof boxPatients[id].onA3 === 'function')) {
-                boxPatients[id].onA3();
-            }
-        });
-
-        $('#result').click(function() {
-            var id = parseInt($('.selected').prop('id').split('-')[1]);
-            boxPatients[id].inResult = true;
-            if (boxPatients[id] !== undefined) {
-                boxPatients[id].box.find('.popupContainer').hide();
-                if ($('#resultContainer').css('display') === 'block') {
-                    $('#resultContainer').hide();
-                } else {
-                    drawResultWindow(boxPatients[id].resultText, boxPatients[id].resultImg);
-                }
-            }
-
-        });
-
-		//Affiche le menu du clic droit.
+		//Fonction : clic droit => menu
         var drawContextManu = function(event, $this) {
             if (!$this.hasClass('cooling')) {
-                var id = parseInt($this.prop('id').split('-')[1]);
-                var $contextMenu = document.getElementById('contextMenu');
-                var mousePosition = {};
-                var menuPostion = {};
-                var menuDimension = {};
 
-                menuPostion.x = event.pageX;
-                menuPostion.y = event.pageY;
-
-                $contextMenu.style.left = menuPostion.x + 'px';
-                $contextMenu.style.top = menuPostion.y + 'px';
-                $contextMenu.style.display = 'block';//affiche
+				$('#menu-ui').show().menu().position({
+					//my: "right top",
+					//at: "right bottom",
+					of: $this,
+					//scollision: "none",
+					select: function( event, ui ) {}
+				});
             }
         };
 		
-
-
-
-    $(".navigation li.toggleSubMenu > a").click( function () {
-        if ($(this).next("ul.subMenu:visible").length != 0) {
-            $(this).next("ul.subMenu").slideUp("normal", function () { $(this).parent().removeClass("open") });
-        }
-        else {
-            $(".navigation ul.subMenu").slideUp("normal", function () { $(this).parent().removeClass("open") });
-            $(this).next("ul.subMenu").slideDown("normal", function () { $(this).parent().addClass("open") });
-        }
-        return false;
-    });
-	
-
-
-		//Affiche l'onglet Resultats
+		//Fonction affiche l'onglet result
         var drawResultWindow = function(text, imagesArr) {
-            $('.bAction').attr('disabled', 'disabled');
             $('#resultContainer').show();
 			//Affiche le texte du patient selectioné, mais verifi qu'il n'est pas vide avant.
             if (text) {
-                $('#textArea').text(text);
+                $('#tabs-1').text(text);
             } else {
-                $('#textArea').text('');
+                $('#tabs-1').text('');
             }
             var resultHTML = '';
 
@@ -324,7 +183,75 @@ define('app', ['jquery','utils'], function($,u) {
             }
         }
 
-		//Creation des boxes et des attributs
+		
+		
+		
+		
+		
+		
+		
+		
+				//Fonction affiche l'onglet result
+        var updatetabs = function(observ,bio,imagesArr) {
+			//Affiche le texte du patient selectioné, mis verifi qu'il n'est pas vide avant.
+			if(observ){
+                $('#tabs-1').text(observ);
+				$('#tabs-2').text(bio);
+			}
+
+            var resultHTML = '';
+
+            if (imagesArr.length !== 0) {
+                for (var i = 0; i < imagesArr.length; i++) {
+                    resultHTML += '<img class="mySlides" src="' + imagesArr[i] + '">';
+                }
+                if (imagesArr.length > 1) {
+                    resultHTML += '<div id="arrowDiv"><a class="arrow arrow-left" >&#10094;</a>' +
+                        '<a class="arrow arrow-right" >&#10095;</a></div>';
+                }
+                $('#tabs-3').html(resultHTML);
+                var slideIndex = 1;
+                showDivs(slideIndex);
+                $(document).on('click', '.arrow-left', function() {
+                    plusDivs(-1);
+                });
+                $(document).on('click', '.arrow-right', function() {
+                    plusDivs(1);
+                });
+                function plusDivs(n) {
+                    showDivs(slideIndex += n);
+                }
+                function showDivs(n) {
+                    var i;
+                    var x = document.getElementsByClassName("mySlides");
+                    if (n > x.length) { slideIndex = 1 }
+                    if (n < 1) { slideIndex = x.length };
+                    for (i = 0; i < x.length; i++) {
+                        x[i].style.display = "none";
+                    }
+                    x[slideIndex - 1].style.display = "block";
+                }
+            } else {
+                $('#tabs-3').html(resultHTML);
+            }
+        }
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		//Fonction creation des différents box 
         function drawBoxes(boxNumber) {
             if (boxNumber === 1) {
                 $('#boxes').css('margin-left', '200px');
@@ -339,9 +266,200 @@ define('app', ['jquery','utils'], function($,u) {
             }
             $('#boxes').html(boxesHTML);
         }
+		
+		
+		//Evenement click sur les items du menu
+		$( "#menu-ui" ).on( "menuselect", function( event, ui ) {
+			item = ui.item.text();
+			switch (item) {
+				case "Antécédants" :
+					boxPatients
+					break;
+				case "Cardio" :
+					console.log('examen cardio');
+					break;
+				case "Standard" :
+					console.log('bio standard');
+					//Affiche la dialog-radio pour la bio-standard
+					$( "#menu-bio" ).dialog({
+						modal: true,
+						buttons: {
+						Ok: function() {
+							var chaine = [];
+								$("#menu-bio .ui-checkboxradio-checked").each(function(index, item){
+									//console.log("check : " + $(this).prop('for'));
+									chaine[index] = $(this).prop('for');
+								});
+						    var id = parseInt($('.selected').prop('id').split('-')[1]);
+							boxPatients[id].onBio(chaine);//déclenche l'évenement onBio dans la classe patient.
+							$( this ).dialog( "close" );
+						}
+						}
+					});
+					break;
+				case "Spécifique" :
+					console.log('bio standard');
+					//Affiche la dialog-radio pour la bio-standard
+					$( "#menu-bio2" ).dialog({		
+						modal: true,
+						buttons: {
+						Ok: function() {
+							var chaine = [];
+								$("#menu-bio2 .ui-checkboxradio-checked").each(function(index, item){
+									//console.log("check : " + $(this).prop('for'));
+									chaine[index] = $(this).prop('for');
+								});
+						    var id = parseInt($('.selected').prop('id').split('-')[1]);
+							boxPatients[id].onBio(chaine);//déclenche l'évenement onBio dans la classe patient.
+							$( this ).dialog( "close" );
+						}
+						}
+					});
+				
+			}
+		
+		
+		} );
+		//Evenement sort du menu
+	    $( "#menu-ui" ).mouseleave(function () {
+			$( "#menu-ui" ).menu('collapseAll');
+        });
+	
+
+		
+		//Initialise le jeu : les box + les timers
+        drawBoxes(boxNumber);
+        $boxes = $('.box');
+        startGeneralTimer();
+
+		
+		//EVENEMENT : Click sur un box
+        $boxes.click(function(e) {
+            if ($(this).hasClass('selectable') && (!$(this).hasClass('selected')) ) {
+                $(this).addClass('selected');
+				//$( this ).draggable( "option", "disabled", false );
+				var id = parseInt($(this).prop('id').split('-')[1]);
+				//console.log('id = ' + id + "\ntext : " + boxPatients[id].observText);
+				updatetabs(boxPatients[id].observText, boxPatients[id].resultText, boxPatients[id].resultImg);
+				
+				//Parcours les autres box et les déselectionne tous
+                $boxes.not($(this)).each(function(index, item) {
+					if ($(item).hasClass('selectable')){
+							$(item).removeClass('selected');
+							//$(item).draggable( "disable" );
+						}
+					
+					//?
+					var id = parseInt($(item).prop('id').split('-')[1]);
+					if (boxPatients[id]) {
+						boxPatients[id].inResult = false;
+					}
+                });
+				
+			//Desactive le popup s'il y en a un en cours.
+            $(this).find('.popupContainer').hide();
+            }
+
+        });
+
+		//EVENEMENT : Click en dehors du jeu
+        $('body').click(function(e) {
+			//desactive menudéroulant
+            $('#menu-ui').hide();
+            $boxes.each(function(index, item) {
+                var id = parseInt($(item).prop('id').split('-')[1]);
+                if (boxPatients[id]) {
+                    boxPatients[id].inContextMenu = false;
+                }
+            });
+			//Si click en dehors de ResultContainer, ferme le.
+            if (!$(e.target).is('#result') && !$(e.target).is('.arrow')) {
+                $('#resultContainer').hide();
+                if ($('.selected').length !== 0) {
+                    var id = parseInt($('.selected').prop('id').split('-')[1]);
+                    if (boxPatients[id]) {
+                        boxPatients[id].inResult = false;
+                    }
+  
+                }
+            }
+			//desactive l'UI si rien n'est selectioné
+           /* if ($('.selected').length === 0) {
+                $('.btn').attr('disabled', 'disabled');
+            }*/
+			
+        });
+
+		//Desactive le menu clic droit du navigateur ?
+        $('body').contextmenu(function(e) {
+            e.preventDefault();
+        });
+
+		//???
+        $(document).on('contextmenu', '.selectable', function(e) {
+            $(this).addClass('selected');
+            var id = parseInt($('.selected').prop('id').split('-')[1]);
+            if (boxPatients[id]) {
+                boxPatients[id].hidePopup();
+                boxPatients[id].inContextMenu = true;
+            }
+            $boxes.not($(this)).each(function(index, item) {
+                $(item).removeClass('selected');
+            });
+
+            drawContextManu(e, $(this));
+			 	
 
 
+            e.preventDefault();
+        });
 
+		//??? Annule le clic droit du defaut du navigateur ?
+        $(document).on('contextmenu', '.selected', function(e) {
+            drawContextManu(e, $(this));
+            e.preventDefault();
+        });
+
+		
+
+		//Gestion du bouton dossier
+        $('#result').click(function() {
+            var id = parseInt($('.selected').prop('id').split('-')[1]);
+            boxPatients[id].inResult = true;
+            if (boxPatients[id] !== undefined) {
+                boxPatients[id].box.find('.popupContainer').hide();
+                if ($('#resultContainer').css('display') === 'block') {
+                    $('#resultContainer').hide();
+                } else {
+                    drawResultWindow(boxPatients[id].resultText, boxPatients[id].resultImg);
+                }
+            }
+
+        })
+	
+	
+	$( "#tabs" ).tabs({
+	activate: function( event, ui ) {
+		$("#observ").text('plop');
+	}
+	});
+	
+		
+		//Gestion des zones de drag drop.
+		$('#drop_hospit').droppable({
+			//accept : '#box',
+			drop: function( event, ui ) {
+				var id = parseInt(ui.draggable.prop('id').split('-')[1]);
+				alert("vous avez hospitalisé " + boxPatients[id].patientName);
+			}
+		});
+		$('#drop_RAD').droppable({
+			//accept : '#box',
+			drop : function(event, ui){
+				var id = parseInt(ui.draggable.prop('id').split('-')[1]);
+				alert("vous avez RADé " + boxPatients[id].patientName);
+			}
+		});
     }
 
     return {

@@ -1,9 +1,10 @@
 define([
     'jquery',
+	'jqueryui',
     'progressbar',
     'utils',
 	'app'
-], function($, ProgressBar, u,a) {
+], function($,ui,ProgressBar, u,a) {
     'use strict';
 
     function Patient(patientName, patient_neg_time, patientImage, aActions) {
@@ -137,6 +138,9 @@ define([
             selfBox.toggleClass('selected');
 			selfBox.toggleClass('selectable');
 			
+			selfBox.draggable("disable");
+			
+			
             selfBox.find('.popupContainer').hide();
 			//selfbox.removeClass('selectable');
 			
@@ -213,8 +217,47 @@ define([
         this.currentA1 = 0;
         this.logText = "Log of user actions";
 		this.bonneReponse = false;
+		
+		//Fonction génere un nombre aléatoire
+		this.getRandom = function (min, max) {
+				return Math.random() * (max - min) + min;
+		}
+		
+		//Biologie : valeurs par default d'un patient bien portant.
+		this.hb = this.getRandom(13,16).toFixed(1);
+		this.PNN=this.getRandom(2000,5000).toFixed(0);
+		this.lympho = this.getRandom(1500,3000).toFixed(0);
+		this.plaq = this.getRandom(150,400).toFixed(0);
+		this.na = this.getRandom(135,145).toFixed(0);
+		this.k = this.getRandom(3.5,5).toFixed(1);
+		this.cl = this.getRandom(90,110).toFixed(0);
+		this.hco3 = this.getRandom(20,25).toFixed(1);
+		this.CRP = this.getRandom(0,5).toFixed(0);;
+		this.creat= this.getRandom(40,80).toFixed(0);
+		this.uree = this.getRandom(3,8).toFixed(0);
+		this.clairance = this.getRandom(60,120).toFixed(0);
+		this.ASAT =  this.getRandom(8,30).toFixed(0);
+		this.ALAT = this.getRandom(8,30).toFixed(0);
+		this.PAL = this.getRandom(80,200).toFixed(0);
+		this.GGT = this.getRandom(8,30).toFixed(0);
+		this.TSH = this.getRandom(0.5,3).toFixed(1);;
+		this.protides = this.getRandom(50,70).toFixed(0);
+		this.albumine = this.getRandom(30,50).toFixed(0);
+		this.TP = this.getRandom(90,100).toFixed(0);
+		this.TCA = this.getRandom(25,35).toFixed(0);
+		this.INR = this.getRandom(0.9,1.2).toFixed(1);
+		this.BNP = this.getRandom(50,200).toFixed(0);
+		this.DD = this.getRandom(50,200).toFixed(0);;
+		this.troponine = 0;
+		this.bHCG = 0;
+		
+
+	
 
         this.initialise = function() {
+			//modifie un peu les valeurs par défaults : 
+			
+			
             this.startTimer();
             this.logText = u.time() + "Nouveau patient '" + this.patientName + "'" + "\n";
             console.log(this.logText);
