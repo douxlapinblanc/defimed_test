@@ -36,6 +36,8 @@ limitations under the License.
 		messagingSenderId: "814947720232"
 	  };
 	  firebase.initializeApp(config);
+	  
+ 
 	</script>
 
 
@@ -193,6 +195,15 @@ limitations under the License.
       initApp();
     };
   </script>
+  
+  
+  <script>
+  function writeUserData(userId, name) {
+  firebase.database().ref('users/' + userId).set({
+    username: name
+  });
+}
+</script>
 </head>
 <body>
 <div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-header">

@@ -24,7 +24,8 @@
   firebase.initializeApp(config);
 </script>
 <script>
-/*firebase.auth().onAuthStateChanged(function(user) {
+var UID;
+firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
     // User is signed in.
     var displayName = user.displayName;
@@ -32,13 +33,13 @@
     var emailVerified = user.emailVerified;
     var photoURL = user.photoURL;
     var isAnonymous = user.isAnonymous;
-    var uid = user.uid;
+   UID = user.uid;
     var providerData = user.providerData;
     // ...
   } else {
 	document.location = "index.html";
   }
-});*/
+});
 </script>
 
 
@@ -61,7 +62,8 @@
   <script>
   $( function() {
     $( "#tabs" ).tabs({
-      collapsible: true
+      collapsible: true,
+	  heightStyle : "content"
     });
   } );
   </script>
@@ -112,14 +114,23 @@
 	<li><div>Interogatoire</div>
 		<ul class="subMenu">
 			<li><div id="atcd">Antécédants</div></li>
+			<li><div id="atcd">Traitements</div></li>
+			<li><div id="atcd">Habitus</div></li>
 			<li><div name = "motif">Motif de venue</div></li>
 			<li><div>Histoire récente</div></li>
 		</ul>
 	</li>
     <li><div>Examen clinique</div>
 		<ul>
+			<li><div>Douleur</div></li>
+			<li><div>Etat général</div></li>
+			<li><div>Neuro</div></li>
+			<li><div>ORL</div></li>
 			<li><div>Cardio</div></li>
 			<li><div>Pneumo</div></li>
+			<li><div>Abdo</div></li>
+			<li><div>Uro-Gynéco</div></li>
+			<li><div>Ortho-Rhumato</div></li>
 		</ul>
 	</li>
   <li><div></div></li>

@@ -244,5 +244,6 @@ background-color: white;
 }
 #tabs{
 	width: 50%;
-	z-index: 1;
+	z-index: 5;
+	position : relative;
 }

@@ -32,65 +32,112 @@ define([
 	Traitements : Metformine, Kardegic 75 \n\n";
     //Actions du joueur
 
+	//Fonction standard
 	myCustomPatient.onBio = function(bio) { 
+	var me = this;
 	//bio = [nfs,crp...]
 	var factor = 1;
-	var i=0;
-	for (i=0;i<bio.length;i++){
+	var demande = "";
+
+	for (var i=0;i<bio.length;i++){
 		switch (bio[i]){
 			case "nfs":
-				this.addresult("NFS :\nHb = " + this.hb + "g/dL\nPNN = " + this.PNN + "g/mL\nLymphocytes = " + this.lympho + "g/mL\nPlaquettes = " + this.plaq + "g/mL\n");
+				a ="NFS :\nHb = " + this.hb + "g/dL\nPNN = " + this.PNN + "g/mL\nLymphocytes = " + this.lympho + "g/mL\nPlaquettes = " + this.plaq + "g/mL\n";
 				factor += 0.2;
 			break;
 			case "iono":
-				this.addresult("Ionogramme :\nNa = " + this.na + "mmol/mL\nK = " + this.k + "mmol/mL\nCl = " + this.cl + "mmol/ml\nHCO3- = " + this.hco3 + "mmol/mL\n");
+				demande +="Ionogramme :\nNa = " + this.na + "mmol/mL\nK = " + this.k + "mmol/mL\nCl = " + this.cl + "mmol/ml\nHCO3- = " + this.hco3 + "mmol/mL\n";
 				factor += 0.2;
 			break;
 			case "crp":
-				this.addresult("CRP = " + this.CRP + "mmol/L");
+				demande +="CRP = " + this.CRP + "mmol/L";
 				factor += 0.2;
 			break;
 			case "hemostase":
-				this.addresult("TP = " + this.TP + "%\nTCA = " + this.TCA + "s\nINR = " + this.INR + "\n");
+				demande +="TP = " + this.TP + "%\nTCA = " + this.TCA + "s\nINR = " + this.INR + "\n";
 				factor += 0.2;
 			break;
 			case "fhepatique":
-				this.addresult("Fonction hépatique : \nASAT = " + this.ASAT + "UI\nALAT = " + this.ALAT + "UI\nPAL = " + this.PAL + "UI/L\nGGT = " + this.GGT + "UI/L\n");
+				demande +="Fonction hépatique : \nASAT = " + this.ASAT + "UI\nALAT = " + this.ALAT + "UI\nPAL = " + this.PAL + "UI/L\nGGT = " + this.GGT + "UI/L\n";
 				factor += 0.1;
 			break;
 			case "frenale":
-				this.addresult("Fonction rénale :\nCréatinine = " + this.creat + "umol/L\nUrée = " + this.uree + "mmol/L\nClairance = " + this.clairance + "ml/min\n");
+				demande +="Fonction rénale :\nCréatinine = " + this.creat + "umol/L\nUrée = " + this.uree + "mmol/L\nClairance = " + this.clairance + "ml/min\n";
 				factor += 0.1;
 			break;
 			case "glycemie":
-				this.addresult("Glycémie = " + this.glycemie + "mmol/L\n");
+				demande +="Glycémie = " + this.glycemie + "mmol/L\n";
 				factor += 0.1;
 			break;
 			case "troponine":
-				this.addresult("Troponine = " + this.troponine + "ng/mL\n");
+				demande +="Troponine = " + this.troponine + "ng/mL\n";
 				factor += 0.1;
 			break;
 			case "ddimeres":
-				this.addresult("D-Dimères = " + this.DD + "ug/L\n");
+				demande +="D-Dimères = " + this.DD + "ug/L\n";
 				factor += 0.1;
 			break;
 			case "bnp":
-				this.addresult("BNP = " + this.BNP + "ug/L\n");
+				demande +="BNP = " + this.BNP + "ug/L\n";
 				factor += 0.1;
 			break;
 			case "bhcg":
-				this.addresult("bHCG = " + this.bHCG+ "ug/L\n");
+				demande +="bHCG = " + this.bHCG+ "ug/L\n";
 				factor += 0.1;
 			break;
 			case "tsh":
-				this.addresult("TSH= " + this.TSH + "ng/L\n");
+				demande +="TSH= " + this.TSH + "ng/L\n";
 				factor += 0.1;
 			break;
 			}
 		}
-	this.cooldown(factor);
+		
+	this.addresult(demande,factor);
 	this.popup("Nouveaux resultats disponibles");
 	}
+	
+myCustomPatient.onATCD = function(){
+	this.addobserv(this.ATCD);
+}
+myCustomPatient.onHabitus = function(){
+	this.addobserv(this.Habitus);
+}
+myCustomPatient.onTraitements = function(){
+	this.addobserv(this.Traitements);
+}
+myCustomPatient.onMotif = function(){
+	this.addobserv(this.Motif);
+}
+myCustomPatient.onDouleur = function(){
+	this.addobserv(this.Douleur);
+}
+myCustomPatient.onAEG = function(){
+	this.addobserv(this.AEG);
+}
+myCustomPatient.onNeuro = function(){
+	this.addobserv(this.Neuro);
+}
+myCustomPatient.onORL = function(){
+	this.addobserv(this.ORL);
+}
+myCustomPatient.onCardio = function(){
+	this.addobserv(this.Cardio);
+}
+myCustomPatient.onPneumo = function(){
+	this.addobserv(this.Pneumo);
+}
+myCustomPatient.onNeuro = function(){
+	this.addobserv(this.Neuro);
+}
+myCustomPatient.onAbdo = function(){
+	this.addobserv(this.Abdo);
+}
+myCustomPatient.onUroGyneco= function(){
+	this.addobserv(this.UroGyneco);
+}
+myCustomPatient.onOrthoRhumato = function(){
+	this.addobserv(this.OrthoRhumato);
+}
 	
 	
     myCustomPatient.patientInit = function() {

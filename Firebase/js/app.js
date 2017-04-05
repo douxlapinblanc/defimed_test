@@ -16,8 +16,11 @@ define('app', ['jquery','jqueryui','utils'], function($,jiu,u) {
     //var remainingPatients = waitingLine.length;
 
     function registerPatient(patient) {
-        //patient.onAddResult(addResult);
+		
+		//Fonctions communicantes :
         patient.onLeaveBox(leaveBox);
+		
+		
         waitingLine.push(patient);
         console.log(patient);
     }
@@ -28,14 +31,14 @@ define('app', ['jquery','jqueryui','utils'], function($,jiu,u) {
 			var gamelog = "Durée de la partie : " + game_pos_time + "\n" 	+ "Nombre de box : " + boxNumber + "\n" + "Fréquence d'apparition des patients : " + SPAWN_TIME + " secondes" + "\n" + "Délais d'apparition du stress : " + GAME_NEG_TIME + " secondes" + "\n\n";
             var generallog = u.getGeneralLog();
 			console.log(gamelog + generallog);
-			
+			/*
 			//Push to firebase DB :  
 			// Get a reference to the database service
 			var database = firebase.database();
 			
 			firebase.database().ref('users/' + UID).set({
 			Gamelog : gamelog
-			});
+			});*/
 			
 			
         }	
@@ -72,6 +75,7 @@ define('app', ['jquery','jqueryui','utils'], function($,jiu,u) {
             }
         }
 		
+
         
 		
 		//Fonction : Respawn
@@ -93,6 +97,9 @@ define('app', ['jquery','jqueryui','utils'], function($,jiu,u) {
                     $box.css('background-image', 'url(' + boxPatients[id].patientImage + ')');
                 }
                 boxPatients[id].initialise();
+				
+				//fonction communication pour pouvoir accéder a update tabs depuis patient.js
+				boxPatients[id].onRefreshtabs(updatetabs);
 
 				//Rend le patient draggable
 				$box.draggable({
@@ -145,125 +152,12 @@ define('app', ['jquery','jqueryui','utils'], function($,jiu,u) {
 					//my: "right top",
 					//at: "right bottom",
 					of: $this,
-					//scollision: "none",
+					collision: "none",
 					select: function( event, ui ) {}
 				});
             }
         };
-		
-		//Fonction affiche l'onglet result
-        var drawResultWindow = function(text, imagesArr) {
-            $('#resultContainer').show();
-			//Affiche le texte du patient selectioné, mais verifi qu'il n'est pas vide avant.
-            if (text) {
-                $('#tabs-1').text(text);
-            } else {
-                $('#tabs-1').text('');
-            }
-            var resultHTML = '';
 
-            if (imagesArr.length !== 0) {
-                for (var i = 0; i < imagesArr.length; i++) {
-                    resultHTML += '<img class="mySlides" src="' + imagesArr[i] + '">';
-                }
-                if (imagesArr.length > 1) {
-                    resultHTML += '<div id="arrowDiv"><a class="arrow arrow-left" >&#10094;</a>' +
-                        '<a class="arrow arrow-right" >&#10095;</a></div>';
-                }
-                $('#slideDiv').html(resultHTML);
-                var slideIndex = 1;
-                showDivs(slideIndex);
-                $(document).on('click', '.arrow-left', function() {
-                    plusDivs(-1);
-                });
-                $(document).on('click', '.arrow-right', function() {
-                    plusDivs(1);
-                });
-                function plusDivs(n) {
-                    showDivs(slideIndex += n);
-                }
-                function showDivs(n) {
-                    var i;
-                    var x = document.getElementsByClassName("mySlides");
-                    if (n > x.length) { slideIndex = 1 }
-                    if (n < 1) { slideIndex = x.length };
-                    for (i = 0; i < x.length; i++) {
-                        x[i].style.display = "none";
-                    }
-                    x[slideIndex - 1].style.display = "block";
-                }
-            } else {
-                $('#slideDiv').html(resultHTML);
-            }
-        }
-
-		
-		
-		
-		
-		
-		
-		
-		
-				//Fonction affiche l'onglet result
-        var updatetabs = function(observ,bio,imagesArr) {
-			//Affiche le texte du patient selectioné, mis verifi qu'il n'est pas vide avant.
-			if(observ){
-                $('#tabs-1').text(observ);
-				$('#tabs-2').text(bio);
-			}
-
-            var resultHTML = '';
-
-            if (imagesArr.length !== 0) {
-                for (var i = 0; i < imagesArr.length; i++) {
-                    resultHTML += '<img class="mySlides" src="' + imagesArr[i] + '">';
-                }
-                if (imagesArr.length > 1) {
-                    resultHTML += '<div id="arrowDiv"><a class="arrow arrow-left" >&#10094;</a>' +
-                        '<a class="arrow arrow-right" >&#10095;</a></div>';
-                }
-                $('#tabs-3').html(resultHTML);
-                var slideIndex = 1;
-                showDivs(slideIndex);
-                $(document).on('click', '.arrow-left', function() {
-                    plusDivs(-1);
-                });
-                $(document).on('click', '.arrow-right', function() {
-                    plusDivs(1);
-                });
-                function plusDivs(n) {
-                    showDivs(slideIndex += n);
-                }
-                function showDivs(n) {
-                    var i;
-                    var x = document.getElementsByClassName("mySlides");
-                    if (n > x.length) { slideIndex = 1 }
-                    if (n < 1) { slideIndex = x.length };
-                    for (i = 0; i < x.length; i++) {
-                        x[i].style.display = "none";
-                    }
-                    x[slideIndex - 1].style.display = "block";
-                }
-            } else {
-                $('#tabs-3').html(resultHTML);
-            }
-        }
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
 		
 		//Fonction creation des différents box 
         function drawBoxes(boxNumber) {
@@ -284,14 +178,54 @@ define('app', ['jquery','jqueryui','utils'], function($,jiu,u) {
 		
 		//Evenement click sur les items du menu
 		$( "#menu-ui" ).on( "menuselect", function( event, ui ) {
+			var id = parseInt($('.selected').prop('id').split('-')[1]);
 			item = ui.item.text();
 			switch (item) {
+				//INTERROGATOIRE ICI
 				case "Antécédants" :
-					boxPatients
+					boxPatients[id].onATCD();
+					break;
+				case "Habitus" :
+					boxPatients[id].onHabitus();
+					break;
+				case "Traitements" :
+					boxPatients[id].onTraitements();
+					break;
+				case "Motif de venue" :
+					boxPatients[id].onMotif;
+					break;
+				//EXAMEN CLINIQUE ICI
+				case "Douleur" :
+					boxPatients[id].onDouleur();
+					break;
+				case "Etat général" :
+					boxPatients[id].onAEG();
+					break;
+				case "Neuro" :
+					boxPatients[id].onNeuro();
+					break;
+				case "ORL" :
+					boxPatients[id].onORL()
 					break;
 				case "Cardio" :
-					console.log('examen cardio');
+					boxPatients[id].onCardio();
 					break;
+				case "Pneumo" :
+					boxPatients[id].onPneumo();
+					break;
+				case "Neuro" :
+					boxPatients[id].onNeuro();
+					break;
+				case "Abdo" :
+					boxPatients[id].onAbdo();
+					break;
+				case "Uro-Gynéco" :
+					boxPatients[id].onUroGyneco();
+					break;
+				case "Ortho-Rhumato" :
+					boxPatients[id].onOrthoRhumato()
+					break;
+				//BIOLOGIE ICI
 				case "Standard" :
 					console.log('bio standard');
 					//Affiche la dialog-radio pour la bio-standard
@@ -304,7 +238,6 @@ define('app', ['jquery','jqueryui','utils'], function($,jiu,u) {
 									//console.log("check : " + $(this).prop('for'));
 									chaine[index] = $(this).prop('for');
 								});
-						    var id = parseInt($('.selected').prop('id').split('-')[1]);
 							boxPatients[id].onBio(chaine);//déclenche l'évenement onBio dans la classe patient.
 							$( this ).dialog( "close" );
 						}
@@ -329,7 +262,6 @@ define('app', ['jquery','jqueryui','utils'], function($,jiu,u) {
 						}
 						}
 					});
-				
 			}
 		
 		
@@ -345,16 +277,78 @@ define('app', ['jquery','jqueryui','utils'], function($,jiu,u) {
         drawBoxes(boxNumber);
         $boxes = $('.box');
         startGeneralTimer();
-
+		
+		
+		//Fonction affiche l'onglet result
+		var updatetabs = function($patient) {
+			/*if(!$patient.hasClass('selected')){
+				$('#tabs').tabs("disable");
+			}
+			else{*/
+				$('#tabs').tabs("enable");
+				var id = parseInt($patient.prop('id').split('-')[1]);
+				var observ = boxPatients[id].observText;
+				if (!observ){ 
+					observ = "";
+				}
+				var bio = boxPatients[id].resultText;
+				if (!bio){ 
+					bio = "";
+				}
+				var imagesArr = boxPatients[id].resultImg;
+				
+				//Verifie 
+					$('#tabs-1').html(observ);
+					$('#tabs-2').html(bio);
+				var resultHTML = '';
+				if (imagesArr.length !== 0) {
+					for (var i = 0; i < imagesArr.length; i++) {
+						resultHTML += '<img class="mySlides" src="' + imagesArr[i] + '">';
+					}
+					if (imagesArr.length > 1) {
+						resultHTML += '<div id="arrowDiv"><a class="arrow arrow-left" >&#10094;</a>' +
+							'<a class="arrow arrow-right" >&#10095;</a></div>';
+					}
+					$('#tabs-3').html(resultHTML);
+					var slideIndex = 1;
+					showDivs(slideIndex);
+					$(document).on('click', '.arrow-left', function() {
+						plusDivs(-1);
+					});
+					$(document).on('click', '.arrow-right', function() {
+						plusDivs(1);
+					});
+					function plusDivs(n) {
+						showDivs(slideIndex += n);
+					}
+					function showDivs(n) {
+						var i;
+						var x = document.getElementsByClassName("mySlides");
+						if (n > x.length) { slideIndex = 1 }
+						if (n < 1) { slideIndex = x.length };
+						for (i = 0; i < x.length; i++) {
+							x[i].style.display = "none";
+						}
+						x[slideIndex - 1].style.display = "block";
+					}
+				} else {
+					$('#tabs-3').html(resultHTML);
+				}
+			//}
+        }
+		
 		
 		//EVENEMENT : Click sur un box
         $boxes.click(function(e) {
             if ($(this).hasClass('selectable') && (!$(this).hasClass('selected')) ) {
                 $(this).addClass('selected');
+				
 				//$( this ).draggable( "option", "disabled", false );
 				var id = parseInt($(this).prop('id').split('-')[1]);
 				//console.log('id = ' + id + "\ntext : " + boxPatients[id].observText);
-				updatetabs(boxPatients[id].observText, boxPatients[id].resultText, boxPatients[id].resultImg);
+				
+				//Rafraichir l'UI
+				updatetabs($(this));
 				
 				//Parcours les autres box et les déselectionne tous
                 $boxes.not($(this)).each(function(index, item) {
@@ -437,7 +431,7 @@ define('app', ['jquery','jqueryui','utils'], function($,jiu,u) {
 		
 
 		//Gestion du bouton dossier
-        $('#result').click(function() {
+        /*$('#result').click(function() {
             var id = parseInt($('.selected').prop('id').split('-')[1]);
             boxPatients[id].inResult = true;
             if (boxPatients[id] !== undefined) {
@@ -449,14 +443,14 @@ define('app', ['jquery','jqueryui','utils'], function($,jiu,u) {
                 }
             }
 
-        })
+        })*/
 	
 	
-	$( "#tabs" ).tabs({
-	activate: function( event, ui ) {
-		$("#observ").text('plop');
-	}
-	});
+		$( "#tabs" ).tabs({
+		activate: function( event, ui ) {
+			//Lorsque tab est déployée
+		}
+		});
 	
 		
 		//Gestion des zones de drag drop.
