@@ -1,8 +1,8 @@
-define('app', ['jquery','jqueryui','utils'], function($,u) {
+define('app', ['jquery','jqueryui','utils'], function($,jiu,u) {
 
     const PATIENTS_NUMBER = 5;
 	const SPAWN_TIME =1 ;
-	const GAME_NEG_TIME = 200;
+	const GAME_NEG_TIME = 3;
 	
     var randomGame = false;
     var patientCount = 0;
@@ -21,10 +21,23 @@ define('app', ['jquery','jqueryui','utils'], function($,u) {
         waitingLine.push(patient);
         console.log(patient);
     }
+	
+	
+
         function gameOver() {
 			var gamelog = "Durée de la partie : " + game_pos_time + "\n" 	+ "Nombre de box : " + boxNumber + "\n" + "Fréquence d'apparition des patients : " + SPAWN_TIME + " secondes" + "\n" + "Délais d'apparition du stress : " + GAME_NEG_TIME + " secondes" + "\n\n";
             var generallog = u.getGeneralLog();
 			console.log(gamelog + generallog);
+			
+			//Push to firebase DB :  
+			// Get a reference to the database service
+			var database = firebase.database();
+			
+			firebase.database().ref('users/' + UID).set({
+			Gamelog : gamelog
+			});
+			
+			
         }	
 		
     function leaveBox() {
@@ -103,6 +116,7 @@ define('app', ['jquery','jqueryui','utils'], function($,u) {
                 }
                 if (game_neg_time === 0) {
                     console.log("STRESSSS NOW");
+					gameOver();
                     //clearInterval(respawning_timer);
                     //Ici la fonction stress !
                     //return false;
