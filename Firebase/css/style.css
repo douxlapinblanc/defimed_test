@@ -167,8 +167,15 @@ background-color: white;
 #menu-bio2{
 display:none;
 background-color: white;
-
 }
+
+#dialog{
+	display:none;
+	position:absolute;
+	background-color: white;
+}
+
+
 #tabs{
 	width :500px;
 	text-align: left;
@@ -179,3 +186,4 @@ background-color: white;
 #pre{
 	width :500px;
 }
+

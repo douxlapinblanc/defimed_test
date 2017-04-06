@@ -15,22 +15,35 @@ define([
     var excli3 = "Les infirmieres viennent vous voir car la patiente les insulte. D'ailleurs elle ne veut plus vous voir";
     var img1 = "Compte rendu Angioscanner : Embolie pulmonaire proximale bilatérale. Cavités droites augmentées de volume.";
 
+
+		myCustomPatient.lympho = myCustomPatient.getRandom(6000,7500).toFixed(0);
+
+		myCustomPatient.hco3 = myCustomPatient.getRandom(15,18).toFixed(1);
+		myCustomPatient.CRP = myCustomPatient.getRandom(5,15).toFixed(0);;
+
+		myCustomPatient.BNP = myCustomPatient.getRandom(5000,20000).toFixed(0);
+		myCustomPatient.DD = myCustomPatient.getRandom(3000,20000).toFixed(0);;
+		myCustomPatient.troponine = 40;
+		
+		myCustomPatient.PaO2 = myCustomPatient.getRandom(55,70).toFixed(0);
+		myCustomPatient.PCO2 = myCustomPatient.getRandom(20,30).toFixed(0);
+		myCustomPatient.HCO3 = myCustomPatient.getRandom(15,19).toFixed(0);
+		myCustomPatient.pH = myCustomPatient.getRandom(7.35,7.42).toFixed(2);
+		myCustomPatient.Lactates = myCustomPatient.getRandom(0.2,2).toFixed(1);
+		myCustomPatient.SAO2 = myCustomPatient.getRandom(88,92).toFixed(0);
+		
 	
 	
     //accueil IDE : 
-    myCustomPatient.observText = "\
+    myCustomPatient.IAO = "\
 	Entrée box : " + u.time() + " \n\
 	IAO :\n\
-	19ans, psy +++crise d’angoisse. T 37.8, PA 140/60 ,sat 96%, FC 107\n\n \
-	Antécédents : ? \n\
-	Traitements : Leelo, Xanax \n\n";
+	19ans, psy +++crise d’angoisse. T 37.8, PA 140/60 ,sat 96%, FC 107";
 
-	myCustomPatient.resultImg.push('img/p2_courrier.png');
+	//Courrier
+	myCustomPatient.courrier = 'img/p2_courrier.png';
 	
     //Actions du joueur,
-	myCustomPatient.onB1 = function() { 
-	this.close();
-	}
     myCustomPatient.onA1 = function() {
         switch (this.currentA1) {
             case 0:

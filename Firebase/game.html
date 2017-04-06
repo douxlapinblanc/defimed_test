@@ -98,7 +98,7 @@ firebase.auth().onAuthStateChanged(function(user) {
   </div>
    <div id="tabs-4">
     <p><strong>Courrier</strong></p>
-    <p>Courriers ici</p>
+    <p><img id="courrier"></img></p>
   </div>
 </div>
 
@@ -126,6 +126,7 @@ firebase.auth().onAuthStateChanged(function(user) {
 			<li><div>Histoire récente</div></li>
 		</ul>
 	</li>
+	<li><div></div></li>
     <li><div>Examen clinique</div>
 		<ul>
 			<li><div>Douleur</div></li>
@@ -154,9 +155,17 @@ firebase.auth().onAuthStateChanged(function(user) {
           <li><div>Echographie</div></li>
           <li><div>TDM/IRM</div></li>
         </ul>
+      <li><div>ECG</div></li>
+	  <li><div>Gaz du sang</div></li>
+	  <li><div>Infectiologie</div></li>
+        <ul>
+          <li><div>Bandelette urinaire</div></li>
+          <li><div>Ponction lombaire</div></li>
+        </ul>
       </li>
     </ul>
   </li>
+
 </ul>
 
 
@@ -201,6 +210,9 @@ firebase.auth().onAuthStateChanged(function(user) {
  </p>
 </div>
  
+<div id="dialog" title="Information importante !">
+  <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>These items willt be recovered. Are you sure?</p>
+</div>
 
 
 <div id="drop_hospit"><p>Droper ici pour hospitaliser</p></div>

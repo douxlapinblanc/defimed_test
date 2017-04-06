@@ -28,11 +28,17 @@ define([
     myCustomPatient.IAO = "\
 Entrée box : " + u.time() + " \n\
 IAO :\n\
-Homme 55ans diabete constipation depuis 4j\n PA 12/8, FC 80, T=37,5\n\n \
-Antécédents : diabete\n\
-Traitements : Metformine, Kardegic \n\n";
+Homme 55ans diabete constipation depuis 4j\nPA 12/8, FC 80, T=37,5\n\n ";
 
+	//Modification des variables
+	myCustomPatient.suspicion = false;
+	
     //Modification des fonctions : 
+		myCustomPatient.onNeuro = function(){
+			this.addobserv(this.Neuro);
+			this.suspicion = true;
+		}
+		
 		myCustomPatient.onRadio = function() { 	
 			this.addImagerie('img/p1_asp.png',img1);
 			
@@ -41,38 +47,18 @@ Traitements : Metformine, Kardegic \n\n";
 			this.addImagerie("img/echo.jpg",img2);
 		}
 		myCustomPatient.onTDM = function(){
-			console.log("azzzzzz");
+			if (this.suspicion == false){
+				this.refuse("Le radiologue n'a pas accepté votre demande");
+				return;
+			}
 			this.addImagerie('img/IRM.jpg',img3);
+			this.bonneReponse = true;
+			
 		}
 
 	
 	
-    myCustomPatient.patientInit = function() {
-        myCustomPatient.onA1 = function() {
-            switch (this.currentA1) {
-                case 0:
-                    this.cooldown();
-                    this.popup(interro1);
-                    this.addresult(interro1);
-                    this.addlog("interro1");
-                    this.currentA1 += 1;
-                    break;
-                case 1:
-                    this.cooldown();
-                    this.popup(interro2);
-                    this.currentA1 += 1;
-                    this.addresult(interro2);
-                    this.addlog("interro2");
-                    break;
-                case 2: //Cul de sac, on incrémente pas.
-                    this.popup("Rien de plus...");
-                    this.addlog("Interrogatoire suppplémentaire non disponnible")
-                    break;
-                default:
-                    console.log('erreur : default value reached dans ONA3');
-                    this.addlog("erreur : default value dans ONA3");
-            }
-        }
+
         myCustomPatient.onA2 = function() {
             switch (this.currentA2) {
                 case 0:
@@ -149,7 +135,7 @@ Traitements : Metformine, Kardegic \n\n";
                     this.addlog("erreur : default value dans ONA3");
             }
         }
-    }
+    
     return myCustomPatient;
 
 });

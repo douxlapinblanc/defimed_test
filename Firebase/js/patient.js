@@ -35,23 +35,24 @@ define([
         this.patientCooldown;
         this.patientImage = patientImage;
         this.patient_neg_time = patient_neg_time;
-        this.cooldownTime = 3; //par default (en secondes)
+        this.cooldownTime = 0.1; //par default (en secondes)
         this.timerReference;
 		
 		//Contient les données médicales pour le joueur.
+		this.courrier;
         this.resultImg = [];
 		this.resultImgCR = [];
         this.resultText = "";
 		this.observText = "";
 
         this.logText = "Log of user actions";
-		this.bonneReponse = false;
+		this.bonneReponse; //Undefined.
 	
 	
         this.initialise = function() {
             this.startTimer();
-            this.logText = u.time() + "Nouveau patient '" + this.patientName + "'" + "\n";
-            console.log(this.logText);
+            this.addlog (u.time() + "Nouveau patient '" + this.patientName + "'" + "\n");
+            //console.log(this.logText);
 
             /*if (typeof this.patientInit === 'function') {
                 this.patientInit();
@@ -116,6 +117,7 @@ define([
         }
 
         this.close = function() {
+
             if (this.isReturned) {
                 this.isClosed = false;
             }
@@ -124,11 +126,12 @@ define([
                     clearTimeout(this.timerReference);
                     this.bar.destroy();
                 } else {
-                    throw new Error('Close without timer');
+                    throw new Error('Closed without timer');
                 }
                 this.box.removeClass('occupied');
                 this.box.removeClass('selected');
                 this.box.removeClass('selectable');
+				this.box.draggable("disable");
                 this.box.css('background-image', '');
                 if (this.inContextMenu) {
                     $('#contextMenu').hide();
@@ -140,12 +143,17 @@ define([
                     this.inResult = false;
                 }
                 this.box.find('.popupContainer').hide();
+				
                 this.isClosed = true;
                 clearTimeout(this.popupTimeout);
                 clearInterval(this.patient_pos_timer);
 
                 //Loguer la fermeture de ce patient
-                this.addlog("patient fermé à " + this.patient_pos_time + " secondes");
+                this.addlog("Patient has been closed at " + this.patient_pos_time + " seconds");
+				
+
+					
+				this.addlog("Cas validé : " + this.bonneReponse);
 				
 				//Loguer le log de ce patient au log global
                 u.addGeneralLog(this.logText);
@@ -205,13 +213,16 @@ define([
             setTimeout(function() {
                 selfBox.removeClass('cooling');
 				selfBox.toggleClass('selectable');
+				//Si rien n'a été reselectioné pendant le cooldown, on reprend le patient
 				if(!($('.selected').length)){
 					selfBox.toggleClass('selected');
+					
 				}
+				selfBox.draggable("enable");
 				
-				//if(typeof func =function){
-					func(args);
-				//}
+				//On effectue la tache demandé apres le cooldown.
+				func(args);
+				
 				me.refreshtabs_fonction(me.box);
             }, time * 1000);
         }
@@ -275,6 +286,13 @@ define([
 		this.DD = this.getRandom(50,200).toFixed(0);;
 		this.troponine = 0;
 		this.bHCG = 0;
+		//Gaz		
+		this.PaO2 = this.getRandom(85,110).toFixed(0);
+		this.PCO2 = this.getRandom(35,40).toFixed(0);
+		this.HCO3 = this.getRandom(20,25).toFixed(0);
+		this.pH = this.getRandom(7.38,7.42).toFixed(2);
+		this.Lactates = this.getRandom(0.2,2).toFixed(0);
+		this.SAO2 = this.getRandom(95,100).toFixed(0);
 		
 		this.IAO = "Pas de note de l'IAO";
 		this.ATCD = "Aucun";
@@ -407,16 +425,47 @@ define([
 		this.popup("Nouveaux resultats disponibles");
 		}
 		
+		this.onGDS = function() { 	
+
+			var demande = "Gaz du sang\n"\nPaO2....." + this.PaO2 + "mmHg\nPCO2....." + this.PCO2 + "mmHg\npH....." + this.pH + "\nHCO3-....."+ this.HCO3 + "mmol/L\nsatAO2....." + this.SAO2 + "%\nLactates....." + this.Lactates + "mmol/L\n";
+			this.addresult(demande,2);
+
+		}
 		
-	/*	this.onRadio = function() { 	
+		this.onRadio = function() { 	
+			this.addlog("Default Radio");
 			
 		}
 		this.onEcho = function(){
+			this.addlog("Default Echo");
+		}
+		/*this.onTDM = function(){
+			this.addlog("Default TDM");
+		}*/
+		this.onECG = function() { 	
+			this.addlog("Default ECG");
+
+		}
+		this.onPL = function() { 	
+			this.addlog("Default PL");
+	
+		}
+		this.onBU = function() { 	
+			this.addlog("Default BU");
+
+		}
+
+		this.onRAD = function() { 	
+			this.addlog("Décision : retour à domicile");
+			this.close();	
+		}
+		this.onHospit = function(){
+			this.bonneReponse = true;
+			this.addlog("Décision : Hospitalisation");
+			this.close();
 			
 		}
-		this.onTDM = function(){
-			
-		}*/
+
 		
 		this.addImagerie = function(src,cr,factor){
 			var selfBox = this.box;
@@ -444,6 +493,7 @@ define([
 				}
 	            selfBox.removeClass('cooling');
 				selfBox.addClass('selectable');
+				selfBox.draggable('enable');
 				
 				console.log("addIMG(" + factor + "): " + src + "\n" + cr);
             }, time * 1000);
@@ -457,7 +507,29 @@ define([
         /*this.onAddResult = function(onAddResultFn) {
             this.onAddResultFn = onAddResultFn;
         }*/
-
+		this.refuse = function (txt){
+			var time = this.cooldownTime
+			var me = this;
+			var selfBox = this.box;
+			this.cooldownAnimation(time);
+            setTimeout(function() {
+				$('#dialog').text(txt);
+				$('#dialog').dialog({
+					  modal: true
+				});
+				
+				if(!($('.selected').length)){
+					selfBox.toggleClass('selected');
+					me.refreshtabs_fonction(me.box);
+				}
+	            selfBox.removeClass('cooling');
+				selfBox.addClass('selectable');
+				selfBox.draggable('enable');
+				me.addlog("Demande refusée : " + txt);
+            }, time * 1000);
+	
+		}
+		
 
         this.addresult = function(text,factor) {
 			var selfBox = this.box;
@@ -473,17 +545,18 @@ define([
                 factor = 1;
             }
 			
+			var now = u.time();
             var time = factor * this.cooldownTime;
             this.cooldownAnimation(time);
             setTimeout(function() {
-				me.resultText = me.resultText + text + "\n"; 
+				me.resultText = me.resultText + u.time() + "\n" + text + "\n"; 
 				if(!($('.selected').length)){
 					selfBox.toggleClass('selected');
-					selfBox.draggable("enable");
 					me.refreshtabs_fonction(me.box);
 				}
 	            selfBox.removeClass('cooling');
 				selfBox.addClass('selectable');
+				selfBox.draggable('enable');
 				console.log("addresult(" + factor + "s) :" + text);
             }, time * 1000);
             //this.onAddResultFn(text, this.resultText);
@@ -515,14 +588,15 @@ define([
 				}
 	            selfBox.removeClass('cooling');
 				selfBox.addClass('selectable');
-				console.log("addresult(" + factor + " cooldown : " + text);
+				selfBox.draggable('enable');
+				//console.log("addobserv(" + factor + "s)" + text);
             }, time * 1000);
             //this.onAddResultFn(text, this.resultText);
         }
 
         this.addlog = function(text) {
             this.logText = this.logText + "<" + this.patientName + ">" + " (" + u.time() + ") " + text + "\n";
-			console.log(this.logText);
+			//console.log(this.logText);
         }
 
     }

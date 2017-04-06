@@ -275,7 +275,18 @@ define('app', ['jquery','jqueryui','utils'], function($,jiu,u) {
 				case "TDM/IRM":
 					boxPatients[id].onTDM();
 					break;
-				
+				case "ECG":
+					boxPatients[id].onECG();
+					break;
+				case "Bandelette urinaire":
+					boxPatients[id].onBU();
+					break;
+				case "Ponction lombaire":
+					boxPatients[id].onPL();
+					break;
+				case "Gaz du sang":
+					boxPatients[id].onGDS();
+					break;
 			}
 		
 		
@@ -316,20 +327,26 @@ define('app', ['jquery','jqueryui','utils'], function($,jiu,u) {
 				if (!cr){ 
 					cr = "";
 				}
+				var courrier =  boxPatients[id].courrier;
+				if (!courrier){ 
+					courrier = "";
+				}
 				
 				//Change le texte
 				$('#observ' ).text(observ);
 				$('#bio').text(bio);
+				$('#courrier').attr('src', courrier);
 				
 				
 				//Construit un tableau d'images.
 				var resultHTML = '';
 				if (imagesArr.length !== 0) {
 					for (var i = imagesArr.length ; i > 0; i--) {
-						console.log(i);
+						//console.log(i);
 						resultHTML += '<img class="mySlides" src="' + imagesArr[i-1] + '">';
-						$('#cr').text(cr[i-1]);
+						$('#cr').text(cr[i]);
 					}
+					$('#cr').text(cr[imagesArr.length - 1]);
 					//$('#cr').text(cr[imagesArr.length]);
 					if (imagesArr.length > 1) {
 						resultHTML += '<div id="arrowDiv"><a class="arrow arrow-left" >&#10094;</a>' +
@@ -457,22 +474,6 @@ define('app', ['jquery','jqueryui','utils'], function($,jiu,u) {
         });
 
 		
-
-		//Gestion du bouton dossier
-        /*$('#result').click(function() {
-            var id = parseInt($('.selected').prop('id').split('-')[1]);
-            boxPatients[id].inResult = true;
-            if (boxPatients[id] !== undefined) {
-                boxPatients[id].box.find('.popupContainer').hide();
-                if ($('#resultContainer').css('display') === 'block') {
-                    $('#resultContainer').hide();
-                } else {
-                    drawResultWindow(boxPatients[id].resultText, boxPatients[id].resultImg);
-                }
-            }
-
-        })*/
-	
 	
 		$( "#tabs" ).tabs({
 		activate: function( event, ui ) {
@@ -483,17 +484,19 @@ define('app', ['jquery','jqueryui','utils'], function($,jiu,u) {
 		
 		//Gestion des zones de drag drop.
 		$('#drop_hospit').droppable({
-			//accept : '#box',
+			accept : '.box',
 			drop: function( event, ui ) {
 				var id = parseInt(ui.draggable.prop('id').split('-')[1]);
-				alert("vous avez hospitalisé " + boxPatients[id].patientName);
+				boxPatients[id].onHospit();
+				console.log("HOSPIT");
 			}
 		});
 		$('#drop_RAD').droppable({
-			//accept : '#box',
+			accept : '.box',
 			drop : function(event, ui){
 				var id = parseInt(ui.draggable.prop('id').split('-')[1]);
-				alert("vous avez RADé " + boxPatients[id].patientName);
+				boxPatients[id].onRAD();
+				console.log("RAD");
 			}
 		});
     }

@@ -16,7 +16,7 @@ function addGeneralLog(text) {
         var hrs = dt.getHours();
         var min = dt.getMinutes();
         var sec = dt.getSeconds();
-        var tm = hrs + "h" + min + " et " + sec + " secs ";
+        var tm = hrs + ":" + min + ":" + sec + " ";
         return tm;
     }
 
