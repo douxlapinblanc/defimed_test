@@ -10,10 +10,13 @@ define([
     function Patient(patientName, patient_neg_time, patientImage, aActions) {
 
 	
-	        this.self = this;
+	    this.self = this;
+		//Fonction transverses
 		this.refreshtabs_fonction;
         this.leaveBoxFn;
         this.onAddResultFn;
+		
+		//?
         this.inResult = false;
         this.inContextMenu = false;
 
@@ -34,14 +37,29 @@ define([
         this.patient_neg_time = patient_neg_time;
         this.cooldownTime = 3; //par default (en secondes)
         this.timerReference;
+		
+		//Contient les données médicales pour le joueur.
         this.resultImg = [];
-        this.resultText;
-        this.currentA3 = 0;
-        this.currentA2 = 0;
-        this.currentA1 = 0;
+		this.resultImgCR = [];
+        this.resultText = "";
+		this.observText = "";
+
         this.logText = "Log of user actions";
 		this.bonneReponse = false;
 	
+	
+        this.initialise = function() {
+            this.startTimer();
+            this.logText = u.time() + "Nouveau patient '" + this.patientName + "'" + "\n";
+            console.log(this.logText);
+
+            /*if (typeof this.patientInit === 'function') {
+                this.patientInit();
+            }*/
+			this.addobserv(this.IAO);
+        }
+		
+		//Donne accès a la fonction updateTabs dans app.js
 		this.onRefreshtabs = function(refreshtabs_fonction){
 			this.refreshtabs_fonction = refreshtabs_fonction;
 			
@@ -258,12 +276,13 @@ define([
 		this.troponine = 0;
 		this.bHCG = 0;
 		
-		
+		this.IAO = "Pas de note de l'IAO";
 		this.ATCD = "Aucun";
 		this.Habitus = "Célibataire et je vis seul. Ni tabac ni alcool. Revenus suffisants. Je suis autonome.";
 		this.Traitements = "Je ne prend aucun traitement";
 		this.Motif = "Default";
 		this.Douleur = "Default";
+		this.Hdlm = "Mon histoire vous la connaissez"
 		this.AEG = "Je suis en forme, je mange bien et mon poids est stable.";
 		this.Neuro = "Glasgow 15, pas de céphalées, pas de sd méningé. Pas de deficit sensitivo-moteur central ni périphérique. ROTS symétriques en \
 		haut et en bas. Pas d'ataxie ni trouble de la marche. Pas de dysmétrie. ";
@@ -272,23 +291,168 @@ define([
 		Pas d'oedemes des membres inférieurs ni de turgenscence jugulaire ou de reflux hépato-jugulaire. pas de crépitants des bases. Rythme régulier, \
 		sans soufle. Axes vasculaires des TSA et abdo-illiaques normaux à l'auscultation, pas de masse battante abdominale.";
 		this.Pneumo = "Pas de toux, pas de dyspnée, pas de cyanose. Auscultation pulmonaire sans particularité. ";
-		this.Abdo = "Pas de trouble du transit. Pas de nausées vomissments. Abdomen souple depressible et indolore. Bruits perçus. Pas de Murphy. Pas d'organomégalie. \
-		Pas de circulation collatérale, pas d'angiomes stellaires, pas de matité sus pubienne, fosses lombaires indolores.";
+		this.Abdo = "Pas de trouble du transit. Pas de nausées vomissments. Abdomen souple depressible et indolore. Bruits perçus. Pas de Murphy.\
+		Pas d'organomégalie. Pas de circulation collatérale, pas d'angiomes stellaires, pas de matité sus pubienne, fosses lombaires indolores.";
 		this.UroGyneco = "Pas de signes fonctionels urinaires. Pas de saignements. Pas de plaintes.";
 		this.OrthoRhumato = "Pas de douleur spontanée ni à la palpation des reliefs osseux du corps entier. Articulation non douloureuses, non gonflées. ";
 		
-
+			
+		this.onATCD = function(){
+			this.addobserv(this.ATCD);
+		}
+		this.onHabitus = function(){
+			this.addobserv(this.Habitus);
+		}
+		this.onTraitements = function(){
+			this.addobserv(this.Traitements);
+		}
+		this.onMotif = function(){
+			this.addobserv(this.Motif);
+		}
+		this.onHdlm = function(){
+			this.addobserv(this.Hdlm);
+		}
+		this.onDouleur = function(){
+			this.addobserv(this.Douleur);
+		}
+		this.onAEG = function(){
+			this.addobserv(this.AEG);
+		}
+		this.onNeuro = function(){
+			this.addobserv(this.Neuro);
+		}
+		this.onORL = function(){
+			this.addobserv(this.ORL);
+		}
+		this.onCardio = function(){
+			this.addobserv(this.Cardio);
+		}
+		this.onPneumo = function(){
+			this.addobserv(this.Pneumo);
+		}
+		this.onNeuro = function(){
+			this.addobserv(this.Neuro);
+		}
+		this.onAbdo = function(){
+			this.addobserv(this.Abdo);
+		}
+		this.onUroGyneco= function(){
+			this.addobserv(this.UroGyneco);
+		}
+		this.onOrthoRhumato = function(){
+			this.addobserv(this.OrthoRhumato);
+		}
 	
 
-        this.initialise = function() {
-            this.startTimer();
-            this.logText = u.time() + "Nouveau patient '" + this.patientName + "'" + "\n";
-            console.log(this.logText);
+		//Fonctions standards
+		this.onBio = function(bio) { 
+		var me = this;
+		//bio = [nfs,crp...]
+		var factor = 1;
+		var demande = "";
 
-            if (typeof this.patientInit === 'function') {
-                this.patientInit();
+		for (var i=0;i<bio.length;i++){
+			switch (bio[i]){
+				case "nfs":
+					demande +="NFS :\nHb = " + this.hb + "g/dL\nPNN = " + this.PNN + "g/mL\nLymphocytes = " + this.lympho + "g/mL\nPlaquettes = " + this.plaq + "g/mL\n";
+					factor += 0.2;
+				break;
+				case "iono":
+					demande +="Ionogramme :\nNa = " + this.na + "mmol/mL\nK = " + this.k + "mmol/mL\nCl = " + this.cl + "mmol/ml\nHCO3- = " + this.hco3 + "mmol/mL\n";
+					factor += 0.2;
+				break;
+				case "crp":
+					demande +="CRP = " + this.CRP + "mmol/L";
+					factor += 0.2;
+				break;
+				case "hemostase":
+					demande +="TP = " + this.TP + "%\nTCA = " + this.TCA + "s\nINR = " + this.INR + "\n";
+					factor += 0.2;
+				break;
+				case "fhepatique":
+					demande +="Fonction hépatique : \nASAT = " + this.ASAT + "UI\nALAT = " + this.ALAT + "UI\nPAL = " + this.PAL + "UI/L\nGGT = " + this.GGT + "UI/L\n";
+					factor += 0.1;
+				break;
+				case "frenale":
+					demande +="Fonction rénale :\nCréatinine = " + this.creat + "umol/L\nUrée = " + this.uree + "mmol/L\nClairance = " + this.clairance + "ml/min\n";
+					factor += 0.1;
+				break;
+				case "glycemie":
+					demande +="Glycémie = " + this.glycemie + "mmol/L\n";
+					factor += 0.1;
+				break;
+				case "troponine":
+					demande +="Troponine = " + this.troponine + "ng/mL\n";
+					factor += 0.1;
+				break;
+				case "ddimeres":
+					demande +="D-Dimères = " + this.DD + "ug/L\n";
+					factor += 0.1;
+				break;
+				case "bnp":
+					demande +="BNP = " + this.BNP + "ug/L\n";
+					factor += 0.1;
+				break;
+				case "bhcg":
+					demande +="bHCG = " + this.bHCG+ "ug/L\n";
+					factor += 0.1;
+				break;
+				case "tsh":
+					demande +="TSH= " + this.TSH + "ng/L\n";
+					factor += 0.1;
+				break;
+				}
+			}
+			this.addresult(demande,factor);
+		this.popup("Nouveaux resultats disponibles");
+		}
+		
+		
+	/*	this.onRadio = function() { 	
+			
+		}
+		this.onEcho = function(){
+			
+		}
+		this.onTDM = function(){
+			
+		}*/
+		
+		this.addImagerie = function(src,cr,factor){
+			var selfBox = this.box;
+			var me = this;
+			selfBox.addClass('cooling');
+            selfBox.removeClass('selected');
+			selfBox.removeClass('selectable');
+			selfBox.draggable("disable");
+            selfBox.find('.popupContainer').hide();
+	
+			//Enclenche le cooldown selon le factor temps demandé.
+            if (factor === undefined) {
+                factor = 0.1;
             }
-        }
+
+            var time = factor * this.cooldownTime;
+            this.cooldownAnimation(time);
+			setTimeout(function() {
+				me.resultImg.push(src);
+				me.resultImgCR.push(cr);
+				if(!($('.selected').length)){
+					selfBox.toggleClass('selected');
+					selfBox.draggable("enable");
+					me.refreshtabs_fonction(me.box);
+				}
+	            selfBox.removeClass('cooling');
+				selfBox.addClass('selectable');
+				
+				console.log("addIMG(" + factor + "): " + src + "\n" + cr);
+            }, time * 1000);
+            //this.onAddResultFn(text, this.resultText);	
+		}
+	
+			
+	
+
 
         /*this.onAddResult = function(onAddResultFn) {
             this.onAddResultFn = onAddResultFn;
@@ -320,11 +484,12 @@ define([
 				}
 	            selfBox.removeClass('cooling');
 				selfBox.addClass('selectable');
-				console.log("addresult(" + factor + " cooldown : " + text);
+				console.log("addresult(" + factor + "s) :" + text);
             }, time * 1000);
             //this.onAddResultFn(text, this.resultText);
 
         }
+		//Méthode groupée avec le cooldown
         this.addobserv= function(text,factor) {
 			var selfBox = this.box;
 			var me = this;

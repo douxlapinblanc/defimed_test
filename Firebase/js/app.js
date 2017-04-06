@@ -6,7 +6,7 @@ define('app', ['jquery','jqueryui','utils'], function($,jiu,u) {
 	
     var randomGame = false;
     var patientCount = 0;
-    var boxNumber = 2;
+    var boxNumber = 4;
     var general_timer;
 		var spawn_time = SPAWN_TIME
 		var game_neg_time = GAME_NEG_TIME ;
@@ -91,22 +91,23 @@ define('app', ['jquery','jqueryui','utils'], function($,jiu,u) {
                 patientCount++;
                 //$('#patNum').text(patientCount);*
 				
-				//Image de fon
 				//Image de fond
                 if (boxPatients[id].patientImage) {
                     $box.css('background-image', 'url(' + boxPatients[id].patientImage + ')');
                 }
-                boxPatients[id].initialise();
-				
+               
 				//fonction communication pour pouvoir accéder a update tabs depuis patient.js
 				boxPatients[id].onRefreshtabs(updatetabs);
 
-				//Rend le patient draggable
+				//Rend le patient-box draggable
 				$box.draggable({
 				cancel: false,
 				revert: true,
 				scroll : false
 				});
+				
+				//Appel la fonction d'initialisation de la classe patient.
+				boxPatients[id].initialise();
             }
         }
 		
@@ -188,6 +189,9 @@ define('app', ['jquery','jqueryui','utils'], function($,jiu,u) {
 				case "Habitus" :
 					boxPatients[id].onHabitus();
 					break;
+				case "Histoire récente" :
+					boxPatients[id].onHdlm();
+					break;
 				case "Traitements" :
 					boxPatients[id].onTraitements();
 					break;
@@ -262,6 +266,16 @@ define('app', ['jquery','jqueryui','utils'], function($,jiu,u) {
 						}
 						}
 					});
+				case "Radiographies":
+					boxPatients[id].onRadio();
+					break;
+				case "Echographie":
+					boxPatients[id].onEcho();
+					break;
+				case "TDM/IRM":
+					boxPatients[id].onTDM();
+					break;
+				
 			}
 		
 		
@@ -287,6 +301,8 @@ define('app', ['jquery','jqueryui','utils'], function($,jiu,u) {
 			else{*/
 				$('#tabs').tabs("enable");
 				var id = parseInt($patient.prop('id').split('-')[1]);
+				
+				//récupere les valeurs et mettre a zero sinon bug a la con (undefined)
 				var observ = boxPatients[id].observText;
 				if (!observ){ 
 					observ = "";
@@ -296,20 +312,31 @@ define('app', ['jquery','jqueryui','utils'], function($,jiu,u) {
 					bio = "";
 				}
 				var imagesArr = boxPatients[id].resultImg;
+				var cr = boxPatients[id].resultImgCR;
+				if (!cr){ 
+					cr = "";
+				}
 				
-				//Verifie 
-					$('#tabs-1').html(observ);
-					$('#tabs-2').html(bio);
+				//Change le texte
+				$('#observ' ).text(observ);
+				$('#bio').text(bio);
+				
+				
+				//Construit un tableau d'images.
 				var resultHTML = '';
 				if (imagesArr.length !== 0) {
-					for (var i = 0; i < imagesArr.length; i++) {
-						resultHTML += '<img class="mySlides" src="' + imagesArr[i] + '">';
+					for (var i = imagesArr.length ; i > 0; i--) {
+						console.log(i);
+						resultHTML += '<img class="mySlides" src="' + imagesArr[i-1] + '">';
+						$('#cr').text(cr[i-1]);
 					}
+					//$('#cr').text(cr[imagesArr.length]);
 					if (imagesArr.length > 1) {
 						resultHTML += '<div id="arrowDiv"><a class="arrow arrow-left" >&#10094;</a>' +
 							'<a class="arrow arrow-right" >&#10095;</a></div>';
 					}
-					$('#tabs-3').html(resultHTML);
+					$('#pacs').html(resultHTML);
+					
 					var slideIndex = 1;
 					showDivs(slideIndex);
 					$(document).on('click', '.arrow-left', function() {
@@ -332,7 +359,8 @@ define('app', ['jquery','jqueryui','utils'], function($,jiu,u) {
 						x[slideIndex - 1].style.display = "block";
 					}
 				} else {
-					$('#tabs-3').html(resultHTML);
+					/*$('#tabs-3').html(resultHTML);
+					$('#cr').text(cr);*/
 				}
 			//}
         }
